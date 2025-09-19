@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - faiss-node
+  - prisma
+  - sharp
+  - unrs-resolver

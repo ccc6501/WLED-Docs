@@ -1,10 +1,47 @@
 # knoWLEDge
 
-The official documentation page for the WLED project!  
+The official documentation page for the WLED project!
 [To live page](https://kno.wled.ge)
-  
-Community improvements are encouraged! Just click the little pencil mark on the page you'd like to change and submit a pull request.  
+
+Community improvements are encouraged! Just click the little pencil mark on the page you'd like to change and submit a pull request.
 If you'd like to do more advanced changes (e.g. adding a page), the [Material for MkDocs documentation](https://squidfunk.github.io/mkdocs-material/getting-started/) is very helpful.
+
+---
+
+## MONKY-style AI Ops Dashboard (Next.js App)
+
+Alongside the MkDocs site this repository now includes a dark-mode, Chrome-optimized Next.js 15 dashboard located in the repo root. It ships with:
+
+- Genesis/OpenRouter chat proxy with persistent threads and SSE streaming
+- Local RAG over XLSX/CSV/PDF uploads with FAISS-compatible vector storage
+- Notes/Tasks/Projects CRUD backed by Prisma + SQLite
+- Dev toolbox (prompt scratchpad, playground, embeddings tester, log viewer, backup/restore)
+- Placeholder "Future" module gated by `NEXT_PUBLIC_ENABLE_FUTURE`
+
+### Quick start
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+pnpm install
+pnpm dlx prisma migrate dev -n init
+cp .env.example .env.local   # fill in provider keys as desired
+pnpm dev
+```
+
+Visit <http://localhost:3000>. The MkDocs content remains under `/docs` and can still be built with `mkdocs serve` as before.
+
+> **Provider configuration**: set either the Genesis trio (`GENESIS_API_BASE`, `GENESIS_API_KEY`, `GENESIS_ASSISTANT_ID`) or `OPENROUTER_API_KEY` (+ optional `OPENROUTER_MODEL`). For embeddings, supply `EMBEDDINGS_API_BASE`/`EMBEDDINGS_API_KEY` (or an `OPENAI_API_KEY`); a deterministic fallback is used if nothing is configured. Uploads land in `uploads/` and FAISS artifacts live in `.vectorstore/faiss/{index.faiss,metadata.json}`.
+
+### Working in restricted environments
+
+If corporate policy prevents installing Node.js or Docker locally, you can still work on the dashboard:
+
+- **Use a managed workspace** such as GitHub Codespaces, Gitpod, or any company-provided remote VM where Node 20 and SQLite are permitted. All dashboard commands in the quick start work there unchanged.
+- **Rely on hosted previews/CI**: push to a feature branch and let Vercel (or your CI) build preview deployments and run tests when you cannot execute them locally.
+- **Focus on MkDocs content locally** with Python tooling (`pip install mkdocs-material`, `mkdocs serve`); no Node or container runtime is required for the documentation site.
+
+These approaches satisfy strict workstation policies while keeping the project fully usable.
 
 ### Images
 
@@ -38,6 +75,8 @@ It is even easier. Take a look at `nav:` section in `mkdoks.yml` file. To add a 
 The easiest way to preview the documentation locally is with Docker, but you can also do it by installing mkdocs-material with Python. We'll outline both options below. In either case, you'll need a local copy of this repository to work with (either via `git clone https://github.com/Aircoookie/WLED-Docs` or by downloading the sources).
 
 #### Run Locally with Docker
+
+If Docker is not permitted in your environment, skip to the MkDocs instructions below.
 
 You must have [Docker](https://www.docker.com/products/docker-desktop/) installed. From a terminal in the `WLED-Docs` folder, run:
 
