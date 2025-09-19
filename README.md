@@ -1,10 +1,37 @@
 # knoWLEDge
 
-The official documentation page for the WLED project!  
+The official documentation page for the WLED project!
 [To live page](https://kno.wled.ge)
-  
-Community improvements are encouraged! Just click the little pencil mark on the page you'd like to change and submit a pull request.  
+
+Community improvements are encouraged! Just click the little pencil mark on the page you'd like to change and submit a pull request.
 If you'd like to do more advanced changes (e.g. adding a page), the [Material for MkDocs documentation](https://squidfunk.github.io/mkdocs-material/getting-started/) is very helpful.
+
+---
+
+## MONKY-style AI Ops Dashboard (Next.js App)
+
+Alongside the MkDocs site this repository now includes a dark-mode, Chrome-optimized Next.js 15 dashboard located in the repo root. It ships with:
+
+- Genesis/OpenRouter chat proxy with persistent threads and SSE streaming
+- Local RAG over XLSX/CSV/PDF uploads with FAISS-compatible vector storage
+- Notes/Tasks/Projects CRUD backed by Prisma + SQLite
+- Dev toolbox (prompt scratchpad, playground, embeddings tester, log viewer, backup/restore)
+- Placeholder "Future" module gated by `NEXT_PUBLIC_ENABLE_FUTURE`
+
+### Quick start
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+pnpm install
+pnpm dlx prisma migrate dev -n init
+cp .env.example .env.local   # fill in provider keys as desired
+pnpm dev
+```
+
+Visit <http://localhost:3000>. The MkDocs content remains under `/docs` and can still be built with `mkdocs serve` as before.
+
+> **Provider configuration**: set either the Genesis trio (`GENESIS_API_BASE`, `GENESIS_API_KEY`, `GENESIS_ASSISTANT_ID`) or `OPENROUTER_API_KEY` (+ optional `OPENROUTER_MODEL`). Uploads land in `uploads/` and vector data in `.vectorstore/faiss/vectors.json`.
 
 ### Images
 
