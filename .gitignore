@@ -1,3 +1,32 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Next.js
+.next
+out
+.vercel
+
+# Prisma
+dev.db
+dev.db-journal
+
+# Env
+.env.local
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Uploads and vector store
+uploads/
+.vectorstore/
+
+# Misc
 .DS_Store
-site/
-.vscode/settings.json
+coverage
+
