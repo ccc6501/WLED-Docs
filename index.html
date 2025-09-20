@@ -75,20 +75,67 @@
       .sidebar .brand {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+      }
+
+      .brand-logo {
+        display: flex;
+        align-items: center;
         gap: 12px;
       }
 
-      .sidebar .brand svg {
+      .brand-logo svg {
         width: 36px;
         height: 36px;
         flex-shrink: 0;
       }
 
-      .sidebar .brand h1 {
+      .brand-logo h1 {
         font-size: 1.1rem;
         font-weight: 700;
         letter-spacing: 0.08em;
         margin: 0;
+      }
+
+      .avatar-button {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(79, 128, 255, 0.12);
+        border-radius: 50%;
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      .avatar-button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(64, 255, 183, 0.4);
+      }
+
+      .avatar-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+      }
+
+      .avatar-button span {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-100);
+        background: rgba(79, 128, 255, 0.24);
       }
 
       .tab-list {
@@ -121,6 +168,13 @@
         justify-content: center;
         background: rgba(255, 255, 255, 0.04);
         font-size: 0.9rem;
+        overflow: hidden;
+      }
+
+      .tab-button span.icon img {
+        width: 20px;
+        height: 20px;
+        display: block;
       }
 
       .tab-button.active,
@@ -191,6 +245,47 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .server-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(40, 51, 73, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        color: var(--text-200);
+      }
+
+      .server-status .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--warning);
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+      }
+
+      .server-status[data-status="online"] {
+        color: var(--accent);
+        border-color: rgba(64, 255, 183, 0.4);
+      }
+
+      .server-status[data-status="online"] .status-dot {
+        background: var(--accent);
+        box-shadow: 0 0 12px rgba(64, 255, 183, 0.4);
+      }
+
+      .server-status[data-status="offline"] {
+        color: #ffb4b4;
+        border-color: rgba(255, 95, 95, 0.4);
+      }
+
+      .server-status[data-status="offline"] .status-dot {
+        background: var(--danger);
+        box-shadow: 0 0 12px rgba(255, 95, 95, 0.4);
       }
 
       .ghost-button,
@@ -526,6 +621,21 @@
         overflow-x: auto;
       }
 
+      .server-meta {
+        display: grid;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--text-200);
+      }
+
+      .server-meta code {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 0.85rem;
+        background: rgba(18, 24, 38, 0.8);
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+
       .pill {
         display: inline-flex;
         align-items: center;
@@ -604,6 +714,29 @@
         color: var(--text-200);
         padding: 6px 10px;
         cursor: pointer;
+      }
+
+      .modal .avatar-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(7, 9, 15, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 20px;
+        min-height: 140px;
+      }
+
+      .modal .avatar-preview img {
+        max-width: 160px;
+        max-height: 160px;
+        border-radius: 18px;
+        object-fit: cover;
+      }
+
+      .avatar-preview-empty {
+        color: var(--muted);
+        font-size: 0.9rem;
       }
 
       form.settings-grid {
@@ -690,20 +823,26 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="12" y="12" width="96" height="96" rx="26" stroke="#4f80ff" stroke-width="6" fill="rgba(79,128,255,0.1)" />
-            <path d="M40 62c12-24 32-24 44 0" stroke="#40ffb7" stroke-width="6" stroke-linecap="round" />
-            <circle cx="60" cy="48" r="8" stroke="#4f80ff" stroke-width="6" />
-            <path d="M40 78h40" stroke="#4f80ff" stroke-width="6" stroke-linecap="round" />
-          </svg>
-          <h1>MONKY OPS</h1>
+          <div class="brand-logo">
+            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="12" y="12" width="96" height="96" rx="26" stroke="#4f80ff" stroke-width="6" fill="rgba(79,128,255,0.1)" />
+              <path d="M40 62c12-24 32-24 44 0" stroke="#40ffb7" stroke-width="6" stroke-linecap="round" />
+              <circle cx="60" cy="48" r="8" stroke="#4f80ff" stroke-width="6" />
+              <path d="M40 78h40" stroke="#4f80ff" stroke-width="6" stroke-linecap="round" />
+            </svg>
+            <h1>MONKY OPS</h1>
+          </div>
+          <button class="avatar-button" id="avatarButton" title="Edit avatar">
+            <img id="sidebarAvatarImage" alt="User avatar" />
+            <span id="avatarFallback">YOU</span>
+          </button>
         </div>
         <nav class="tab-list">
-          <button class="tab-button active" data-tab="chat"><span class="icon">💬</span>Chat</button>
-          <button class="tab-button" data-tab="lab"><span class="icon">🧪</span>Laboratory</button>
-          <button class="tab-button" data-tab="notes"><span class="icon">📓</span>Notes / Tasks</button>
-          <button class="tab-button" data-tab="dev"><span class="icon">🛠️</span>Dev Tools</button>
-          <button class="tab-button" data-tab="future"><span class="icon">🛰️</span>Future</button>
+          <button class="tab-button active" data-tab="chat"><span class="icon" data-icon="chat" data-fallback="💬"></span>Chat</button>
+          <button class="tab-button" data-tab="lab"><span class="icon" data-icon="lab" data-fallback="🧪"></span>Laboratory</button>
+          <button class="tab-button" data-tab="notes"><span class="icon" data-icon="notes" data-fallback="📓"></span>Notes / Tasks</button>
+          <button class="tab-button" data-tab="dev"><span class="icon" data-icon="dev" data-fallback="🛠️"></span>Dev Tools</button>
+          <button class="tab-button" data-tab="future"><span class="icon" data-icon="future" data-fallback="🛰️"></span>Future</button>
         </nav>
         <div class="sidebar-footer">
           <div class="pill">MONKY Darkline</div>
@@ -716,13 +855,13 @@
           <div class="status-clusters">
             <div class="status-card">
               <h3>MODE</h3>
-              <strong id="statusMode">Initializing…</strong>
+              <strong id="statusMode">Initializing...</strong>
               <span class="muted">Provider &amp; model routing</span>
             </div>
             <div class="status-card">
               <h3>RAG INDEX</h3>
               <strong id="statusRag">Unknown</strong>
-              <span class="muted" id="statusRagDetail">Checking…</span>
+              <span class="muted" id="statusRagDetail">Checking...</span>
             </div>
             <div class="status-card">
               <h3>SESSION</h3>
@@ -731,6 +870,10 @@
             </div>
           </div>
           <div class="toolbar-actions">
+            <div class="server-status" id="serverStatusIndicator" data-status="offline">
+              <span class="status-dot"></span>
+              <span class="status-label">Starting...</span>
+            </div>
             <button id="refreshRag" class="ghost-button">Refresh RAG</button>
             <button id="clearThread" class="ghost-button">Clear Thread</button>
             <button id="settingsButton" class="pill-button primary">Settings</button>
@@ -829,6 +972,21 @@
           <section class="tab-panel" id="tab-dev">
             <div class="dev-tools">
               <div class="card">
+                <div class="section-title">Server / Storage Utility</div>
+                <div class="server-meta">
+                  <div>API base: <code id="devApiBase">—</code></div>
+                  <div>Vector index: <code id="devVectorDir">—</code></div>
+                  <div>Export dir: <code id="devExportDir">—</code></div>
+                  <div>RAG documents: <span id="devDocCount">—</span></div>
+                </div>
+                <div class="toolbar-actions" style="flex-wrap:wrap">
+                  <button id="devPing" class="ghost-button">Ping</button>
+                  <button id="devShowExport" class="ghost-button">Open Export Folder</button>
+                  <button id="devReloadRag" class="ghost-button">Reload RAG Stats</button>
+                </div>
+                <pre id="devServerResult">—</pre>
+              </div>
+              <div class="card">
                 <div class="section-title">Chat payload tester</div>
                 <textarea id="devChatPayload" rows="8">{
   "messages": [
@@ -872,6 +1030,27 @@
       </main>
     </div>
 
+    <div class="modal-overlay" id="avatarModal">
+      <div class="modal">
+        <header>
+          <h2>Edit Avatar</h2>
+          <button class="close" id="avatarClose">Close</button>
+        </header>
+        <div class="avatar-preview" id="avatarPreview">
+          <div class="avatar-preview-empty">No avatar selected</div>
+        </div>
+        <div class="two-col">
+          <label class="label" style="grid-column:1/-1">
+            Choose image
+            <input type="file" id="avatarInput" accept="image/*" />
+          </label>
+        </div>
+        <div class="toolbar-actions" style="justify-content:flex-end">
+          <button type="button" class="ghost-button" id="avatarRemove">Remove</button>
+          <button type="button" class="pill-button primary" id="avatarSave">Save</button>
+        </div>
+      </div>
+    </div>
     <div class="modal-overlay" id="settingsModal">
       <div class="modal">
         <header>
@@ -932,18 +1111,24 @@
         isStreaming: false,
         labMatches: [],
         editingNoteId: null,
+        serverOnline: false,
+        healthInterval: null,
+        ragStats: { hasIndex: false, docCount: 0, indexPath: "", error: null },
+        iconsAvailable: false,
       };
 
       const storage = {
         settings: "monky.settings",
         notes: "monky.notes",
         thread: "monky.thread",
+        avatar: "monky.avatarBase64",
       };
 
       const el = (id) => document.getElementById(id);
 
       const toast = (message, timeout = 2600) => {
         const node = el("toast");
+        if (!node) return;
         node.textContent = message;
         node.classList.add("visible");
         setTimeout(() => node.classList.remove("visible"), timeout);
@@ -997,16 +1182,112 @@
         return html;
       };
 
+      const applyIcons = () => {
+        const nodes = document.querySelectorAll('[data-icon]');
+        nodes.forEach((node) => {
+          const fallback = node.dataset.fallback || "";
+          if (state.iconsAvailable) {
+            const name = node.dataset.icon || "icon";
+            node.innerHTML = `<img src="/icons/${name}.svg" alt="${name} icon" />`;
+          } else {
+            node.textContent = fallback;
+          }
+        });
+      };
+
+      const getStoredAvatar = () => localStorage.getItem(storage.avatar) || "";
+      const currentAvatarSource = () => getStoredAvatar() || state.env.USER_AVATAR_URL || "";
+
+      const updateAvatarDisplay = () => {
+        const image = el("sidebarAvatarImage");
+        const fallback = el("avatarFallback");
+        const src = currentAvatarSource();
+        if (image && fallback) {
+          if (src) {
+            image.src = src;
+            image.style.display = "block";
+            fallback.style.display = "none";
+          } else {
+            image.removeAttribute("src");
+            image.style.display = "none";
+            fallback.style.display = "flex";
+          }
+        }
+      };
+
+      const avatarState = { dataUrl: "" };
+
+      const updateAvatarPreview = () => {
+        const preview = el("avatarPreview");
+        if (!preview) return;
+        const src = avatarState.dataUrl || state.env.USER_AVATAR_URL || "";
+        if (src) {
+          preview.innerHTML = `<img src="${src}" alt="Avatar preview" />`;
+        } else {
+          preview.innerHTML = "<div class=\"avatar-preview-empty\">No avatar selected</div>";
+        }
+      };
+
+      const openAvatarModal = () => {
+        const modal = el("avatarModal");
+        if (!modal) return;
+        avatarState.dataUrl = getStoredAvatar() || "";
+        updateAvatarPreview();
+        const input = el("avatarInput");
+        if (input) input.value = "";
+        modal.classList.add("active");
+      };
+
+      const closeAvatarModal = () => {
+        const modal = el("avatarModal");
+        if (!modal) return;
+        modal.classList.remove("active");
+        const input = el("avatarInput");
+        if (input) input.value = "";
+      };
+
+      const handleAvatarFileChange = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          avatarState.dataUrl = typeof reader.result === "string" ? reader.result : "";
+          updateAvatarPreview();
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const saveAvatarOverride = () => {
+        const dataUrl = avatarState.dataUrl;
+        if (dataUrl && dataUrl.startsWith("data:")) {
+          localStorage.setItem(storage.avatar, dataUrl);
+          toast("Avatar updated");
+        } else {
+          localStorage.removeItem(storage.avatar);
+          toast("Avatar cleared");
+        }
+        updateAvatarDisplay();
+        closeAvatarModal();
+      };
+
+      const removeAvatarOverride = () => {
+        localStorage.removeItem(storage.avatar);
+        avatarState.dataUrl = "";
+        updateAvatarPreview();
+        updateAvatarDisplay();
+        toast("Avatar cleared");
+      };
+
       const renderMessages = () => {
         const container = el("chatMessages");
+        if (!container) return;
         container.innerHTML = "";
-        state.messages.forEach((message, index) => {
+        state.messages.forEach((message) => {
           const node = el("messageTemplate").content.firstElementChild.cloneNode(true);
           node.classList.add(message.role);
           node.querySelector(".avatar").textContent = message.role === "assistant" ? "M" : message.role === "system" ? "SYS" : "YOU";
           const bubble = node.querySelector(".bubble");
           bubble.innerHTML = renderMarkdown(message.content || "");
-
           const meta = document.createElement("div");
           meta.className = "bubble-meta";
           const copy = document.createElement("button");
@@ -1027,7 +1308,7 @@
           }
           if (message.role === "assistant" && message.streaming) {
             const pulse = document.createElement("div");
-            pulse.textContent = "Streaming…";
+            pulse.textContent = "Streaming...";
             meta.appendChild(pulse);
           }
 
@@ -1057,35 +1338,92 @@
         return await response.json();
       };
 
+      const updateServerStatusIndicator = (online, label) => {
+        const indicator = el("serverStatusIndicator");
+        if (!indicator) return;
+        indicator.dataset.status = online ? "online" : "offline";
+        const node = indicator.querySelector(".status-label");
+        if (node) {
+          node.textContent = label || (online ? "✅ Online" : "❌ Offline");
+        }
+      };
+
+      const checkServerHealth = async () => {
+        try {
+          const response = await fetch("/health");
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          const ok = data.ok === true;
+          state.serverOnline = ok;
+          updateServerStatusIndicator(ok, ok ? "✅ Online" : "❌ Offline");
+        } catch (err) {
+          state.serverOnline = false;
+          updateServerStatusIndicator(false, "❌ Offline");
+        }
+      };
+
+      const startHealthPolling = () => {
+        if (state.healthInterval) return;
+        updateServerStatusIndicator(false, "Checking...");
+        checkServerHealth();
+        state.healthInterval = setInterval(checkServerHealth, 3000);
+      };
+
+      const updateServerUtilities = () => {
+        const apiBase = state.env.API_BASE_URL || window.location.origin;
+        const vectorDir = state.env.VECTOR_INDEX_DIR || "—";
+        const exportDir = state.env.DESKTOP_EXPORT_DIR || "—";
+        const stats = state.ragStats || { hasIndex: false, docCount: 0, error: null };
+        const docLabel = stats.hasIndex
+          ? `${stats.docCount} docs`
+          : stats.error
+          ? `⚠️ ${stats.error}`
+          : "No index";
+        const apiNode = el("devApiBase");
+        const vecNode = el("devVectorDir");
+        const expNode = el("devExportDir");
+        const docNode = el("devDocCount");
+        if (apiNode) apiNode.textContent = apiBase;
+        if (vecNode) vecNode.textContent = vectorDir;
+        if (expNode) expNode.textContent = exportDir;
+        if (docNode) docNode.textContent = docLabel;
+      };
+
       const loadEnv = async () => {
         try {
           const data = await fetchJSON("/env");
           state.env = data;
+          state.iconsAvailable = Boolean(data.ICONS_AVAILABLE && data.ICONS_DIR);
+          applyIcons();
           const saved = loadSettings();
-          const provider = saved.provider || (data.GENESIS_API_KEY ? "genesis" : "openrouter");
+          const provider = saved.provider || (data.GENESIS_READY ? "genesis" : data.OPENROUTER_READY ? "openrouter" : "genesis");
           state.provider = provider;
-          state.model = saved.model || data.OPENROUTER_MODEL || "";
-          state.ragEnabled = Boolean(saved.ragEnabled);
+          state.model = saved.model || data.DEFAULT_MODEL || data.OPENROUTER_MODEL || "";
+          state.ragEnabled = saved.ragEnabled === undefined ? false : Boolean(saved.ragEnabled);
           state.stream = saved.stream !== false;
           el("ragToggle").checked = state.ragEnabled;
           el("streamToggle").checked = state.stream;
-          el("envStatus").textContent = `Genesis ${data.GENESIS_API_KEY ? "ready" : "—"} • OpenRouter ${data.OPENROUTER_API_KEY ? "ready" : "—"}`;
-          el("settingsGenesisKey").value = saved.genesisKey || data.GENESIS_API_KEY || "";
-          el("settingsOpenRouterKey").value = saved.openRouterKey || data.OPENROUTER_API_KEY || "";
+          el("envStatus").textContent = `Genesis ${data.GENESIS_READY ? "ready" : "—"} • OpenRouter ${data.OPENROUTER_READY ? "ready" : "—"}`;
+          el("settingsGenesisKey").value = saved.genesisKey || "";
+          el("settingsOpenRouterKey").value = saved.openRouterKey || "";
           el("settingsGenesisBase").value = saved.genesisBase || data.GENESIS_BASE_URL || "";
-          el("settingsDefaultModel").value = saved.model || data.OPENROUTER_MODEL || "";
-          el("settingsEmbeddingModel").value = saved.embeddingModel || "text-embedding-3-small";
+          el("settingsDefaultModel").value = saved.model || data.DEFAULT_MODEL || data.OPENROUTER_MODEL || "";
+          el("settingsEmbeddingModel").value = saved.embeddingModel || data.EMBEDDING_MODEL || "text-embedding-3-small";
           updateStatusMode();
+          updateAvatarDisplay();
+          updateServerUtilities();
           populateProviderSelect(provider);
           await Promise.all([loadModels(provider), loadAssistants(provider)]);
+          startHealthPolling();
         } catch (err) {
           console.error(err);
           el("envStatus").textContent = "Env unavailable";
+          updateServerStatusIndicator(false, "❌ Offline");
         }
       };
-
       const populateProviderSelect = (selected) => {
         const select = el("providerSelect");
+        if (!select) return;
         const options = [
           { value: "genesis", label: "Genesis" },
           { value: "openrouter", label: "OpenRouter" },
@@ -1100,6 +1438,7 @@
           const data = await fetchJSON(`/api/models?provider=${provider}`);
           const models = data.data || data.models || [];
           const select = el("modelSelect");
+          if (!select) return;
           select.innerHTML = "";
           models.forEach((model) => {
             const option = document.createElement("option");
@@ -1235,18 +1574,21 @@
       const loadRagStats = async () => {
         try {
           const stats = await fetchJSON("/api/rag/stats");
+          state.ragStats = stats;
           el("labStatus").textContent = stats.hasIndex
             ? `${stats.docCount} documents indexed @ ${stats.indexPath}`
             : stats.error || "No index detected";
           el("statusRag").textContent = stats.hasIndex ? "Online" : "Offline";
           el("statusRagDetail").textContent = stats.hasIndex ? `${stats.docCount} docs` : stats.error || "Missing";
+          updateServerUtilities();
         } catch (err) {
           el("labStatus").textContent = "Unable to load stats";
           el("statusRag").textContent = "Error";
           el("statusRagDetail").textContent = err.message;
+          state.ragStats = { hasIndex: false, docCount: 0, indexPath: "", error: err.message };
+          updateServerUtilities();
         }
       };
-
       const performRagQuery = async (query, k) => {
         const response = await fetchJSON("/api/rag/query", {
           method: "POST",
@@ -1255,9 +1597,10 @@
         });
         state.labMatches = response.matches || [];
         const results = el("labResults");
+        if (!results) return;
         results.innerHTML = "";
         if (!state.labMatches.length) {
-          results.innerHTML = `<div style="grid-column:1/-1;color:var(--muted)">No matches</div>`;
+          results.innerHTML = "<div style=\"grid-column:1/-1;color:var(--muted)\">No matches</div>";
           el("labUseContext").disabled = true;
           return;
         }
@@ -1288,9 +1631,10 @@
       const renderNotes = () => {
         const notes = notesStore.all();
         const grid = el("notesGrid");
+        if (!grid) return;
         grid.innerHTML = "";
         if (!notes.length) {
-          grid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted)">No notes yet</div>`;
+          grid.innerHTML = "<div style=\"grid-column:1/-1;color:var(--muted)\">No notes yet</div>";
           return;
         }
         notes.forEach((note) => {
@@ -1405,7 +1749,6 @@
         saveThread();
         renderMessages();
       };
-
       const loadSavedThread = () => {
         const history = loadThread();
         if (history.length) {
@@ -1501,6 +1844,25 @@
         await loadEnv();
       };
 
+      const handleDevPing = async () => {
+        try {
+          const data = await fetchJSON("/health");
+          el("devServerResult").textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          el("devServerResult").textContent = err.message;
+        }
+      };
+
+      const showExportPath = () => {
+        const pathValue = state.env.DESKTOP_EXPORT_DIR || "Unknown";
+        el("devServerResult").textContent = pathValue;
+        toast("Export path ready");
+      };
+
+      const reloadRagFromDev = async () => {
+        await loadRagStats();
+        el("devServerResult").textContent = JSON.stringify(state.ragStats, null, 2);
+      };
       const init = async () => {
         document.querySelectorAll(".tab-button").forEach((button) => button.addEventListener("click", handleTabChange));
         el("sendButton").addEventListener("click", sendChat);
@@ -1541,7 +1903,24 @@
           const file = event.target.files?.[0];
           if (file) importSettings(file);
         });
+        const avatarButton = el("avatarButton");
+        if (avatarButton) avatarButton.addEventListener("click", openAvatarModal);
+        const avatarClose = el("avatarClose");
+        if (avatarClose) avatarClose.addEventListener("click", closeAvatarModal);
+        const avatarInput = el("avatarInput");
+        if (avatarInput) avatarInput.addEventListener("change", handleAvatarFileChange);
+        const avatarSave = el("avatarSave");
+        if (avatarSave) avatarSave.addEventListener("click", saveAvatarOverride);
+        const avatarRemove = el("avatarRemove");
+        if (avatarRemove) avatarRemove.addEventListener("click", removeAvatarOverride);
+        const devPing = el("devPing");
+        if (devPing) devPing.addEventListener("click", handleDevPing);
+        const devShowExport = el("devShowExport");
+        if (devShowExport) devShowExport.addEventListener("click", showExportPath);
+        const devReloadRag = el("devReloadRag");
+        if (devReloadRag) devReloadRag.addEventListener("click", reloadRagFromDev);
 
+        applyIcons();
         loadSavedThread();
         renderNotes();
         await loadEnv();
@@ -1550,5 +1929,6 @@
 
       document.addEventListener("DOMContentLoaded", init);
     </script>
+
   </body>
 </html>
