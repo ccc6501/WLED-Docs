@@ -1,0 +1,5 @@
+flask
+requests
+sentence-transformers
+numpy
+faiss-cpu  # optional; MONKY will run without FAISS if unavailable
