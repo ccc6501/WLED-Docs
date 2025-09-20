@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MONKY Ops Console</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-900: #07090f;
+        --bg-800: #0d111a;
+        --bg-700: #121826;
+        --bg-600: #1c2536;
+        --bg-500: #283349;
+        --primary: #4f80ff;
+        --primary-soft: rgba(79, 128, 255, 0.12);
+        --accent: #40ffb7;
+        --accent-soft: rgba(64, 255, 183, 0.1);
+        --warning: #ff9f43;
+        --danger: #ff5f5f;
+        --text-100: #f5f7ff;
+        --text-200: #cdd5f5;
+        --text-300: #9aa7d9;
+        --muted: #5e6c94;
+        --border: rgba(255, 255, 255, 0.08);
+        --shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.6);
+        font-size: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at top left, #10192f, #06070d);
+        color: var(--text-100);
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240"><defs><radialGradient id="g" cx="0.7" cy="0.2" r="1"><stop offset="0" stop-color="%234f80ff" stop-opacity="0.12"/><stop offset="1" stop-color="%234f80ff" stop-opacity="0"/></radialGradient></defs><rect width="240" height="240" fill="url(%23g)"/></svg>') repeat;
+        opacity: 0.35;
+        pointer-events: none;
+        z-index: -2;
+      }
+
+      .app-shell {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      .sidebar {
+        width: 280px;
+        background: rgba(9, 12, 20, 0.92);
+        backdrop-filter: blur(18px);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        gap: 24px;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .sidebar .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .sidebar .brand svg {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+      }
+
+      .sidebar .brand h1 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin: 0;
+      }
+
+      .tab-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tab-button {
+        border: none;
+        padding: 14px 18px;
+        background: rgba(40, 51, 73, 0.16);
+        border-radius: 14px;
+        color: var(--text-200);
+        font-size: 0.95rem;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background 0.2s ease, transform 0.2s ease, color 0.2s;
+        cursor: pointer;
+      }
+
+      .tab-button span.icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 0.9rem;
+      }
+
+      .tab-button.active,
+      .tab-button:hover {
+        background: linear-gradient(135deg, rgba(79, 128, 255, 0.22), rgba(64, 255, 183, 0.12));
+        color: var(--text-100);
+        transform: translateX(4px);
+      }
+
+      .sidebar-footer {
+        margin-top: auto;
+        font-size: 0.75rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      main {
+        flex: 1;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      header.primary-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(13, 17, 26, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 16px 24px;
+        box-shadow: var(--shadow);
+        gap: 16px;
+      }
+
+      .status-clusters {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .status-card {
+        background: linear-gradient(145deg, rgba(40, 51, 73, 0.45), rgba(7, 9, 15, 0.8));
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 12px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 140px;
+      }
+
+      .status-card h3 {
+        margin: 0;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-300);
+      }
+
+      .status-card strong {
+        font-size: 1.25rem;
+        color: var(--text-100);
+      }
+
+      .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .ghost-button,
+      .pill-button {
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: rgba(40, 51, 73, 0.2);
+        color: var(--text-100);
+        padding: 10px 16px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      .pill-button.primary {
+        background: linear-gradient(135deg, rgba(79, 128, 255, 0.85), rgba(64, 255, 183, 0.5));
+        border-color: rgba(79, 128, 255, 0.3);
+      }
+
+      .ghost-button:hover,
+      .pill-button:hover {
+        transform: translateY(-1px);
+        background: rgba(79, 128, 255, 0.22);
+      }
+
+      .tabs-container {
+        background: rgba(13, 17, 26, 0.76);
+        border: 1px solid var(--border);
+        border-radius: 26px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .tab-panel {
+        display: none;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .tab-panel.active {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      /* Chat tab */
+      .chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .message-feed {
+        flex: 1;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(7, 9, 15, 0.6);
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .message {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .message .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(79, 128, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--text-100);
+      }
+
+      .message.assistant .avatar {
+        background: rgba(64, 255, 183, 0.18);
+      }
+
+      .message .bubble {
+        position: relative;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(18, 24, 38, 0.9);
+        border: 1px solid rgba(79, 128, 255, 0.1);
+        line-height: 1.6;
+        font-size: 0.95rem;
+        color: var(--text-200);
+        white-space: pre-wrap;
+      }
+
+      .message.assistant .bubble {
+        background: rgba(9, 18, 24, 0.88);
+        border-color: rgba(64, 255, 183, 0.16);
+        color: var(--text-100);
+      }
+
+      .message .bubble pre {
+        background: rgba(7, 9, 15, 0.86);
+        border-radius: 12px;
+        padding: 12px;
+        overflow-x: auto;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .bubble .bubble-meta {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        font-size: 0.75rem;
+        color: var(--muted);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .bubble .bubble-meta button {
+        background: rgba(255, 255, 255, 0.06);
+        border: 0;
+        border-radius: 12px;
+        padding: 6px 10px;
+        color: inherit;
+        cursor: pointer;
+      }
+
+      .composer {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        background: rgba(7, 9, 15, 0.8);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .composer textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(18, 24, 38, 0.7);
+        color: var(--text-100);
+        padding: 14px;
+        font-size: 1rem;
+        font-family: inherit;
+      }
+
+      .composer-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .composer-controls .left-controls,
+      .composer-controls .right-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .toggle {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .toggle input {
+        appearance: none;
+        width: 46px;
+        height: 24px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        position: relative;
+        transition: background 0.2s ease;
+      }
+
+      .toggle input::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--text-100);
+        transition: transform 0.2s ease;
+      }
+
+      .toggle input:checked {
+        background: linear-gradient(135deg, rgba(79, 128, 255, 0.8), rgba(64, 255, 183, 0.6));
+      }
+
+      .toggle input:checked::after {
+        transform: translateX(20px);
+      }
+
+      select,
+      input[type="text"],
+      input[type="number"],
+      input[type="search"],
+      input[type="file"],
+      textarea,
+      .input {
+        background: rgba(18, 24, 38, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 10px 14px;
+        color: var(--text-100);
+      }
+
+      select {
+        padding-right: 36px;
+      }
+
+      .rag-results {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .rag-card {
+        background: rgba(7, 9, 15, 0.78);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .rag-card h4 {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--text-300);
+      }
+
+      .rag-card .score {
+        color: var(--accent);
+        font-size: 0.8rem;
+      }
+
+      .section-title {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-300);
+      }
+
+      .notes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .note-card {
+        background: rgba(7, 9, 15, 0.78);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .note-card .note-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .note-card button {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .note-card button.edit {
+        background: rgba(79, 128, 255, 0.24);
+        color: var(--text-100);
+      }
+
+      .note-card button.delete {
+        background: rgba(255, 95, 95, 0.18);
+        color: #ffb4b4;
+      }
+
+      .dev-tools {
+        display: grid;
+        gap: 18px;
+      }
+
+      .card {
+        background: rgba(7, 9, 15, 0.78);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .card pre,
+      .card code {
+        background: rgba(13, 17, 26, 0.9);
+        border-radius: 12px;
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(79, 128, 255, 0.4);
+        background: rgba(79, 128, 255, 0.12);
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        background: rgba(7, 9, 15, 0.86);
+        border-radius: 16px;
+        border: 1px solid rgba(64, 255, 183, 0.3);
+        padding: 14px 18px;
+        color: var(--text-100);
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      .toast.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 4, 9, 0.78);
+        backdrop-filter: blur(12px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 999;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        background: rgba(13, 17, 26, 0.92);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: min(540px, 100%);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .modal header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal header h2 {
+        margin: 0;
+      }
+
+      .modal .close {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        border: 0;
+        color: var(--text-200);
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+
+      form.settings-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-300);
+      }
+
+      @media (max-width: 1080px) {
+        .app-shell {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          position: static;
+          width: 100%;
+          height: auto;
+          flex-direction: row;
+          align-items: center;
+          gap: 16px;
+          overflow-x: auto;
+        }
+
+        .sidebar .brand {
+          flex: 0 0 auto;
+        }
+
+        .tab-list {
+          flex-direction: row;
+          flex: 1;
+          gap: 12px;
+        }
+
+        .tab-button {
+          flex: 1;
+          justify-content: center;
+          text-align: center;
+        }
+
+        main {
+          padding: 24px 18px 36px;
+        }
+
+        header.primary-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .status-clusters {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .composer textarea {
+          min-height: 100px;
+        }
+
+        .toolbar-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .status-clusters {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="12" width="96" height="96" rx="26" stroke="#4f80ff" stroke-width="6" fill="rgba(79,128,255,0.1)" />
+            <path d="M40 62c12-24 32-24 44 0" stroke="#40ffb7" stroke-width="6" stroke-linecap="round" />
+            <circle cx="60" cy="48" r="8" stroke="#4f80ff" stroke-width="6" />
+            <path d="M40 78h40" stroke="#4f80ff" stroke-width="6" stroke-linecap="round" />
+          </svg>
+          <h1>MONKY OPS</h1>
+        </div>
+        <nav class="tab-list">
+          <button class="tab-button active" data-tab="chat"><span class="icon">💬</span>Chat</button>
+          <button class="tab-button" data-tab="lab"><span class="icon">🧪</span>Laboratory</button>
+          <button class="tab-button" data-tab="notes"><span class="icon">📓</span>Notes / Tasks</button>
+          <button class="tab-button" data-tab="dev"><span class="icon">🛠️</span>Dev Tools</button>
+          <button class="tab-button" data-tab="future"><span class="icon">🛰️</span>Future</button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="pill">MONKY Darkline</div>
+          <div>Local proxy • Offline RAG ready</div>
+          <div id="envStatus">Loading env…</div>
+        </div>
+      </aside>
+      <main>
+        <header class="primary-toolbar">
+          <div class="status-clusters">
+            <div class="status-card">
+              <h3>MODE</h3>
+              <strong id="statusMode">Initializing…</strong>
+              <span class="muted">Provider &amp; model routing</span>
+            </div>
+            <div class="status-card">
+              <h3>RAG INDEX</h3>
+              <strong id="statusRag">Unknown</strong>
+              <span class="muted" id="statusRagDetail">Checking…</span>
+            </div>
+            <div class="status-card">
+              <h3>SESSION</h3>
+              <strong id="statusMessages">0 msgs</strong>
+              <span class="muted">Thread length</span>
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <button id="refreshRag" class="ghost-button">Refresh RAG</button>
+            <button id="clearThread" class="ghost-button">Clear Thread</button>
+            <button id="settingsButton" class="pill-button primary">Settings</button>
+          </div>
+        </header>
+
+        <section class="tabs-container">
+          <section class="tab-panel active" id="tab-chat">
+            <div class="chat-wrapper">
+              <div class="message-feed" id="chatMessages"></div>
+              <div class="composer">
+                <textarea id="chatInput" placeholder="Ask MONKY something…" spellcheck="false"></textarea>
+                <div class="composer-controls">
+                  <div class="left-controls">
+                    <label class="toggle">
+                      <input type="checkbox" id="ragToggle" />
+                      <span>Use RAG</span>
+                    </label>
+                    <label class="toggle">
+                      <input type="checkbox" id="streamToggle" checked />
+                      <span>Stream</span>
+                    </label>
+                    <select id="providerSelect"></select>
+                    <select id="modelSelect"></select>
+                  </div>
+                  <div class="right-controls">
+                    <button class="ghost-button" id="attachButton" title="Attachments coming soon">📎 Attach</button>
+                    <button class="pill-button primary" id="sendButton">Send</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="tab-lab">
+            <div class="card">
+              <div class="section-title">Vector index</div>
+              <div id="labStatus">Loading…</div>
+            </div>
+            <div class="card">
+              <div class="section-title">Search corpus</div>
+              <form id="labSearchForm" class="two-col" autocomplete="off">
+                <label class="label">
+                  Query
+                  <input type="search" id="labQuery" placeholder="Look up a document fragment" required />
+                </label>
+                <label class="label">
+                  Top-k
+                  <input type="number" id="labK" value="5" min="1" max="10" />
+                </label>
+                <button type="submit" class="pill-button primary">Search</button>
+              </form>
+              <div class="toolbar-actions" style="justify-content:flex-end">
+                <button id="labUseContext" class="ghost-button" disabled>Use as context in chat</button>
+              </div>
+              <div class="rag-results" id="labResults"></div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="tab-notes">
+            <div class="card">
+              <div class="section-title">Add task / note</div>
+              <form id="noteForm" class="two-col" autocomplete="off">
+                <label class="label">
+                  Title
+                  <input type="text" id="noteTitle" placeholder="e.g. Brief design" required />
+                </label>
+                <label class="label">
+                  Status
+                  <select id="noteStatus">
+                    <option value="todo">To Do</option>
+                    <option value="doing">In Progress</option>
+                    <option value="done">Done</option>
+                  </select>
+                </label>
+                <label class="label" style="grid-column:1/-1">
+                  Tags
+                  <input type="text" id="noteTags" placeholder="ops, research" />
+                </label>
+                <label class="label" style="grid-column:1/-1">
+                  Details
+                  <textarea id="noteBody" rows="4" placeholder="Keep it short and actionable"></textarea>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:12px;justify-content:flex-end">
+                  <button type="reset" class="ghost-button" id="noteCancel">Cancel</button>
+                  <button type="submit" class="pill-button primary" id="noteSubmit">Save</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <div class="section-title">Workspace</div>
+              <div class="notes-grid" id="notesGrid"></div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="tab-dev">
+            <div class="dev-tools">
+              <div class="card">
+                <div class="section-title">Chat payload tester</div>
+                <textarea id="devChatPayload" rows="8">{
+  "messages": [
+    {"role": "system", "content": "You are MONKY ops assistant."},
+    {"role": "user", "content": "Ping?"}
+  ],
+  "stream": false
+}</textarea>
+                <div class="toolbar-actions" style="justify-content:flex-end">
+                  <button id="devSendChat" class="pill-button primary">Send</button>
+                </div>
+                <pre id="devChatResult">—</pre>
+              </div>
+              <div class="card">
+                <div class="section-title">Utilities</div>
+                <div class="toolbar-actions" style="flex-wrap:wrap">
+                  <button id="devCheckModels" class="ghost-button">Models</button>
+                  <button id="devCheckHealth" class="ghost-button">Health</button>
+                  <button id="devExportSettings" class="ghost-button">Export settings</button>
+                  <label class="ghost-button" style="cursor:pointer">
+                    Import settings
+                    <input type="file" id="devImportSettings" accept="application/json" style="display:none" />
+                  </label>
+                </div>
+                <pre id="devUtilitiesResult">—</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="tab-future">
+            <div class="card" style="align-items:center;text-align:center;gap:18px;">
+              <div class="pill">Incoming</div>
+              <h2 style="margin:0">Future Operations</h2>
+              <p style="max-width:420px;color:var(--text-300)">
+                This lane is intentionally left blank for upcoming operator modules. Ideas floating in the lab: timeline synthesizer, mission rehearsal, crew board, and more.
+              </p>
+              <button class="pill-button primary" disabled>Soon™</button>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal">
+        <header>
+          <h2>Session Settings</h2>
+          <button class="close" id="settingsClose">Close</button>
+        </header>
+        <form class="settings-grid" id="settingsForm">
+          <div class="two-col">
+            <label class="label">
+              Genesis API key
+              <input type="text" id="settingsGenesisKey" placeholder="sk-live-…" />
+            </label>
+            <label class="label">
+              OpenRouter API key
+              <input type="text" id="settingsOpenRouterKey" placeholder="or-…" />
+            </label>
+          </div>
+          <label class="label">
+            Genesis base URL
+            <input type="text" id="settingsGenesisBase" placeholder="https://api.ai.us.lmco.com/v1" />
+          </label>
+          <div class="two-col">
+            <label class="label">
+              Default model
+              <input type="text" id="settingsDefaultModel" placeholder="meta-llama/llama-3.1-8b-instruct" />
+            </label>
+            <label class="label">
+              Embedding model name
+              <input type="text" id="settingsEmbeddingModel" placeholder="text-embedding-3-small" />
+            </label>
+          </div>
+          <div class="toolbar-actions" style="justify-content:flex-end">
+            <button type="button" class="ghost-button" id="settingsReset">Reset</button>
+            <button type="submit" class="pill-button primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <template id="messageTemplate">
+      <div class="message">
+        <div class="avatar">?</div>
+        <div class="bubble"></div>
+      </div>
+    </template>
+
+    <script>
+      const state = {
+        provider: "genesis",
+        model: "",
+        ragEnabled: false,
+        stream: true,
+        messages: [],
+        assistants: [],
+        env: {},
+        isStreaming: false,
+        labMatches: [],
+        editingNoteId: null,
+      };
+
+      const storage = {
+        settings: "monky.settings",
+        notes: "monky.notes",
+        thread: "monky.thread",
+      };
+
+      const el = (id) => document.getElementById(id);
+
+      const toast = (message, timeout = 2600) => {
+        const node = el("toast");
+        node.textContent = message;
+        node.classList.add("visible");
+        setTimeout(() => node.classList.remove("visible"), timeout);
+      };
+
+      const saveSettings = (settings) => {
+        localStorage.setItem(storage.settings, JSON.stringify(settings));
+      };
+
+      const loadSettings = () => {
+        try {
+          const data = localStorage.getItem(storage.settings);
+          if (!data) return {};
+          return JSON.parse(data);
+        } catch (err) {
+          console.warn("Failed to parse settings", err);
+          return {};
+        }
+      };
+
+      const saveThread = () => {
+        localStorage.setItem(storage.thread, JSON.stringify(state.messages));
+      };
+
+      const loadThread = () => {
+        try {
+          const raw = localStorage.getItem(storage.thread);
+          if (!raw) return [];
+          return JSON.parse(raw) || [];
+        } catch (err) {
+          console.warn("Failed to load thread", err);
+          return [];
+        }
+      };
+
+      const escapeHTML = (str) =>
+        str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+
+      const renderMarkdown = (text) => {
+        if (!text) return "";
+        let html = escapeHTML(text);
+        html = html.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${escapeHTML(code.trim())}</code></pre>`);
+        html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+        html = html.replace(/\n/g, "<br/>");
+        return html;
+      };
+
+      const renderMessages = () => {
+        const container = el("chatMessages");
+        container.innerHTML = "";
+        state.messages.forEach((message, index) => {
+          const node = el("messageTemplate").content.firstElementChild.cloneNode(true);
+          node.classList.add(message.role);
+          node.querySelector(".avatar").textContent = message.role === "assistant" ? "M" : message.role === "system" ? "SYS" : "YOU";
+          const bubble = node.querySelector(".bubble");
+          bubble.innerHTML = renderMarkdown(message.content || "");
+
+          const meta = document.createElement("div");
+          meta.className = "bubble-meta";
+          const copy = document.createElement("button");
+          copy.type = "button";
+          copy.textContent = "Copy";
+          copy.addEventListener("click", () => {
+            navigator.clipboard.writeText(message.content || "");
+            toast("Message copied");
+          });
+          meta.appendChild(copy);
+
+          if (message.citations && message.citations.length) {
+            const cite = document.createElement("div");
+            cite.textContent = `Citations: ${message.citations
+              .map((c, i) => `[${i + 1}] ${c.source || "unknown"}`)
+              .join(" • ")}`;
+            meta.appendChild(cite);
+          }
+          if (message.role === "assistant" && message.streaming) {
+            const pulse = document.createElement("div");
+            pulse.textContent = "Streaming…";
+            meta.appendChild(pulse);
+          }
+
+          bubble.appendChild(meta);
+          container.appendChild(node);
+        });
+        container.scrollTop = container.scrollHeight;
+        el("statusMessages").textContent = `${state.messages.length} msgs`;
+        saveThread();
+      };
+
+      const setActiveTab = (tabId) => {
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tab === tabId);
+        });
+        document.querySelectorAll(".tab-panel").forEach((panel) => {
+          panel.classList.toggle("active", panel.id === `tab-${tabId}`);
+        });
+      };
+
+      const fetchJSON = async (url, options = {}) => {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || response.statusText);
+        }
+        return await response.json();
+      };
+
+      const loadEnv = async () => {
+        try {
+          const data = await fetchJSON("/env");
+          state.env = data;
+          const saved = loadSettings();
+          const provider = saved.provider || (data.GENESIS_API_KEY ? "genesis" : "openrouter");
+          state.provider = provider;
+          state.model = saved.model || data.OPENROUTER_MODEL || "";
+          state.ragEnabled = Boolean(saved.ragEnabled);
+          state.stream = saved.stream !== false;
+          el("ragToggle").checked = state.ragEnabled;
+          el("streamToggle").checked = state.stream;
+          el("envStatus").textContent = `Genesis ${data.GENESIS_API_KEY ? "ready" : "—"} • OpenRouter ${data.OPENROUTER_API_KEY ? "ready" : "—"}`;
+          el("settingsGenesisKey").value = saved.genesisKey || data.GENESIS_API_KEY || "";
+          el("settingsOpenRouterKey").value = saved.openRouterKey || data.OPENROUTER_API_KEY || "";
+          el("settingsGenesisBase").value = saved.genesisBase || data.GENESIS_BASE_URL || "";
+          el("settingsDefaultModel").value = saved.model || data.OPENROUTER_MODEL || "";
+          el("settingsEmbeddingModel").value = saved.embeddingModel || "text-embedding-3-small";
+          updateStatusMode();
+          populateProviderSelect(provider);
+          await Promise.all([loadModels(provider), loadAssistants(provider)]);
+        } catch (err) {
+          console.error(err);
+          el("envStatus").textContent = "Env unavailable";
+        }
+      };
+
+      const populateProviderSelect = (selected) => {
+        const select = el("providerSelect");
+        const options = [
+          { value: "genesis", label: "Genesis" },
+          { value: "openrouter", label: "OpenRouter" },
+        ];
+        select.innerHTML = options
+          .map((opt) => `<option value="${opt.value}" ${opt.value === selected ? "selected" : ""}>${opt.label}</option>`)
+          .join("");
+      };
+
+      const loadModels = async (provider) => {
+        try {
+          const data = await fetchJSON(`/api/models?provider=${provider}`);
+          const models = data.data || data.models || [];
+          const select = el("modelSelect");
+          select.innerHTML = "";
+          models.forEach((model) => {
+            const option = document.createElement("option");
+            option.value = model.id || model.name || "";
+            option.textContent = model.id || model.name || "Unnamed model";
+            select.appendChild(option);
+          });
+          if (!state.model && select.options.length) {
+            state.model = select.options[0].value;
+          }
+          if (state.model) {
+            select.value = state.model;
+          }
+        } catch (err) {
+          console.warn("Unable to load models", err);
+          toast("Model list unavailable");
+        }
+      };
+
+      const loadAssistants = async () => {
+        try {
+          const data = await fetchJSON(`/api/assistants`);
+          state.assistants = data.data || data.assistants || [];
+        } catch (err) {
+          console.info("Assistants not available", err.message);
+        }
+      };
+
+      const updateStatusMode = () => {
+        el("statusMode").textContent = `${state.provider.toUpperCase()} · ${state.model || "model?"}`;
+      };
+
+      const sendChat = async () => {
+        if (state.isStreaming) {
+          toast("Already streaming a reply");
+          return;
+        }
+        const input = el("chatInput");
+        const content = input.value.trim();
+        if (!content) return;
+
+        state.messages.push({ role: "user", content });
+        renderMessages();
+        input.value = "";
+
+        const payload = {
+          provider: state.provider,
+          model: state.model,
+          messages: state.messages.map(({ role, content }) => ({ role, content })),
+          stream: state.stream,
+          rag: state.ragEnabled,
+        };
+
+        state.isStreaming = state.stream;
+        const assistantMessage = { role: "assistant", content: "", streaming: state.stream, citations: [] };
+        state.messages.push(assistantMessage);
+        renderMessages();
+
+        try {
+          if (state.stream) {
+            await streamChat(payload, assistantMessage);
+          } else {
+            const response = await fetchJSON("/api/chat/completions", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const text = response.choices?.[0]?.message?.content || response.content || "";
+            assistantMessage.content = text;
+            assistantMessage.citations = response.citations || [];
+            assistantMessage.streaming = false;
+            state.isStreaming = false;
+          }
+        } catch (err) {
+          assistantMessage.content = `⚠️ ${err.message || err}`;
+          assistantMessage.streaming = false;
+          state.isStreaming = false;
+        } finally {
+          renderMessages();
+        }
+      };
+
+      const parseSSELine = (line) => {
+        if (!line) return null;
+        try {
+          return JSON.parse(line);
+        } catch (err) {
+          return null;
+        }
+      };
+
+      const streamChat = async (payload, assistantMessage) => {
+        const response = await fetch("/api/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok || !response.body) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+          for (const part of parts) {
+            if (!part.startsWith("data:")) continue;
+            const payload = part.replace(/^data:\s*/, "").trim();
+            if (!payload || payload === "[DONE]") continue;
+            const data = parseSSELine(payload);
+            if (!data) continue;
+            if (data.delta?.content) {
+              assistantMessage.content += data.delta.content;
+              renderMessages();
+            }
+            if (data.done) {
+              assistantMessage.streaming = false;
+              assistantMessage.citations = data.citations || [];
+              state.isStreaming = false;
+              renderMessages();
+            }
+          }
+        }
+        state.isStreaming = false;
+        assistantMessage.streaming = false;
+      };
+
+      const loadRagStats = async () => {
+        try {
+          const stats = await fetchJSON("/api/rag/stats");
+          el("labStatus").textContent = stats.hasIndex
+            ? `${stats.docCount} documents indexed @ ${stats.indexPath}`
+            : stats.error || "No index detected";
+          el("statusRag").textContent = stats.hasIndex ? "Online" : "Offline";
+          el("statusRagDetail").textContent = stats.hasIndex ? `${stats.docCount} docs` : stats.error || "Missing";
+        } catch (err) {
+          el("labStatus").textContent = "Unable to load stats";
+          el("statusRag").textContent = "Error";
+          el("statusRagDetail").textContent = err.message;
+        }
+      };
+
+      const performRagQuery = async (query, k) => {
+        const response = await fetchJSON("/api/rag/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q: query, k }),
+        });
+        state.labMatches = response.matches || [];
+        const results = el("labResults");
+        results.innerHTML = "";
+        if (!state.labMatches.length) {
+          results.innerHTML = `<div style="grid-column:1/-1;color:var(--muted)">No matches</div>`;
+          el("labUseContext").disabled = true;
+          return;
+        }
+        state.labMatches.forEach((match, idx) => {
+          const card = document.createElement("div");
+          card.className = "rag-card";
+          card.innerHTML = `
+            <div class="pill">#${idx + 1}</div>
+            <div>${renderMarkdown(match.text)}</div>
+            <div class="score">${(match.score ?? 0).toFixed(3)} • ${match.source || "unknown"}</div>
+          `;
+          results.appendChild(card);
+        });
+        el("labUseContext").disabled = false;
+      };
+
+      const notesStore = {
+        all: () => {
+          try {
+            return JSON.parse(localStorage.getItem(storage.notes) || "[]");
+          } catch (err) {
+            return [];
+          }
+        },
+        save: (notes) => localStorage.setItem(storage.notes, JSON.stringify(notes)),
+      };
+
+      const renderNotes = () => {
+        const notes = notesStore.all();
+        const grid = el("notesGrid");
+        grid.innerHTML = "";
+        if (!notes.length) {
+          grid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted)">No notes yet</div>`;
+          return;
+        }
+        notes.forEach((note) => {
+          const card = document.createElement("div");
+          card.className = "note-card";
+          card.innerHTML = `
+            <div class="pill">${note.status.toUpperCase()}</div>
+            <h3 style="margin:0">${escapeHTML(note.title)}</h3>
+            <p style="color:var(--text-300)">${escapeHTML(note.body || "")}</p>
+            <div style="font-size:0.75rem;color:var(--muted)">${escapeHTML(note.tags || "")}</div>
+            <div class="note-actions">
+              <button class="edit">Edit</button>
+              <button class="delete">Delete</button>
+            </div>
+          `;
+          card.querySelector(".edit").addEventListener("click", () => startEditNote(note.id));
+          card.querySelector(".delete").addEventListener("click", () => deleteNote(note.id));
+          grid.appendChild(card);
+        });
+      };
+
+      const startEditNote = (id) => {
+        const notes = notesStore.all();
+        const note = notes.find((item) => item.id === id);
+        if (!note) return;
+        state.editingNoteId = id;
+        el("noteTitle").value = note.title;
+        el("noteStatus").value = note.status;
+        el("noteTags").value = note.tags || "";
+        el("noteBody").value = note.body || "";
+        toast("Editing note");
+      };
+
+      const deleteNote = (id) => {
+        const notes = notesStore.all().filter((note) => note.id !== id);
+        notesStore.save(notes);
+        renderNotes();
+        toast("Note removed");
+      };
+
+      const resetNoteForm = () => {
+        state.editingNoteId = null;
+        el("noteForm").reset();
+      };
+
+      const handleNoteSubmit = (event) => {
+        event.preventDefault();
+        const notes = notesStore.all();
+        const entry = {
+          id: state.editingNoteId || crypto.randomUUID(),
+          title: el("noteTitle").value.trim(),
+          status: el("noteStatus").value,
+          tags: el("noteTags").value.trim(),
+          body: el("noteBody").value.trim(),
+          updatedAt: new Date().toISOString(),
+        };
+        if (!entry.title) {
+          toast("Title required");
+          return;
+        }
+        const existingIndex = notes.findIndex((note) => note.id === entry.id);
+        if (existingIndex >= 0) {
+          notes[existingIndex] = entry;
+          toast("Note updated");
+        } else {
+          notes.unshift(entry);
+          toast("Note added");
+        }
+        notesStore.save(notes);
+        renderNotes();
+        resetNoteForm();
+      };
+
+      const handleSettingsSubmit = (event) => {
+        event.preventDefault();
+        const settings = {
+          provider: state.provider,
+          model: el("settingsDefaultModel").value.trim() || state.model,
+          ragEnabled: el("ragToggle").checked,
+          stream: el("streamToggle").checked,
+          genesisKey: el("settingsGenesisKey").value.trim(),
+          openRouterKey: el("settingsOpenRouterKey").value.trim(),
+          genesisBase: el("settingsGenesisBase").value.trim(),
+          embeddingModel: el("settingsEmbeddingModel").value.trim(),
+        };
+        state.model = settings.model;
+        state.ragEnabled = settings.ragEnabled;
+        state.stream = settings.stream;
+        saveSettings(settings);
+        updateStatusMode();
+        renderMessages();
+        closeSettings();
+        toast("Settings saved");
+      };
+
+      const openSettings = () => {
+        el("settingsModal").classList.add("active");
+      };
+
+      const closeSettings = () => {
+        el("settingsModal").classList.remove("active");
+      };
+
+      const resetSettings = () => {
+        localStorage.removeItem(storage.settings);
+        toast("Settings reset");
+        loadEnv();
+      };
+
+      const clearThread = () => {
+        state.messages = [];
+        saveThread();
+        renderMessages();
+      };
+
+      const loadSavedThread = () => {
+        const history = loadThread();
+        if (history.length) {
+          state.messages = history;
+          renderMessages();
+        }
+      };
+
+      const handleTabChange = (event) => {
+        const tabId = event.currentTarget.dataset.tab;
+        setActiveTab(tabId);
+      };
+
+      const handleProviderChange = async (event) => {
+        state.provider = event.target.value;
+        saveSettings({ ...loadSettings(), provider: state.provider });
+        updateStatusMode();
+        await loadModels(state.provider);
+      };
+
+      const handleModelChange = (event) => {
+        state.model = event.target.value;
+        const settings = loadSettings();
+        saveSettings({ ...settings, model: state.model });
+        updateStatusMode();
+      };
+
+      const handleRagToggle = (event) => {
+        state.ragEnabled = event.target.checked;
+        const settings = loadSettings();
+        saveSettings({ ...settings, ragEnabled: state.ragEnabled });
+      };
+
+      const handleStreamToggle = (event) => {
+        state.stream = event.target.checked;
+        const settings = loadSettings();
+        saveSettings({ ...settings, stream: state.stream });
+      };
+
+      const handleLabUseContext = () => {
+        if (!state.labMatches.length) return;
+        state.ragEnabled = true;
+        el("ragToggle").checked = true;
+        toast("RAG primed for next message");
+      };
+
+      const handleDevChat = async () => {
+        try {
+          const payload = JSON.parse(el("devChatPayload").value);
+          const result = await fetchJSON("/api/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          el("devChatResult").textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          el("devChatResult").textContent = err.message;
+        }
+      };
+
+      const handleDevUtilities = async (type) => {
+        try {
+          let result;
+          if (type === "models") {
+            result = await fetchJSON(`/api/models?provider=${state.provider}`);
+          } else if (type === "health") {
+            result = await fetchJSON("/health");
+          }
+          el("devUtilitiesResult").textContent = JSON.stringify(result, null, 2);
+        } catch (err) {
+          el("devUtilitiesResult").textContent = err.message;
+        }
+      };
+
+      const exportSettings = () => {
+        const settings = loadSettings();
+        const blob = new Blob([JSON.stringify(settings, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "monky-settings.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      };
+
+      const importSettings = async (file) => {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        saveSettings(data);
+        toast("Settings imported");
+        await loadEnv();
+      };
+
+      const init = async () => {
+        document.querySelectorAll(".tab-button").forEach((button) => button.addEventListener("click", handleTabChange));
+        el("sendButton").addEventListener("click", sendChat);
+        el("chatInput").addEventListener("keydown", (event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendChat();
+          }
+        });
+        el("clearThread").addEventListener("click", clearThread);
+        el("settingsButton").addEventListener("click", openSettings);
+        el("settingsClose").addEventListener("click", closeSettings);
+        el("settingsForm").addEventListener("submit", handleSettingsSubmit);
+        el("settingsReset").addEventListener("click", resetSettings);
+        el("providerSelect").addEventListener("change", handleProviderChange);
+        el("modelSelect").addEventListener("change", handleModelChange);
+        el("ragToggle").addEventListener("change", handleRagToggle);
+        el("streamToggle").addEventListener("change", handleStreamToggle);
+        el("refreshRag").addEventListener("click", loadRagStats);
+        el("labSearchForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const query = el("labQuery").value.trim();
+          const k = Number(el("labK").value) || 5;
+          if (!query) return;
+          await performRagQuery(query, k);
+        });
+        el("labUseContext").addEventListener("click", handleLabUseContext);
+        el("noteForm").addEventListener("submit", handleNoteSubmit);
+        el("noteCancel").addEventListener("click", (event) => {
+          event.preventDefault();
+          resetNoteForm();
+        });
+        el("devSendChat").addEventListener("click", handleDevChat);
+        el("devCheckModels").addEventListener("click", () => handleDevUtilities("models"));
+        el("devCheckHealth").addEventListener("click", () => handleDevUtilities("health"));
+        el("devExportSettings").addEventListener("click", exportSettings);
+        el("devImportSettings").addEventListener("change", (event) => {
+          const file = event.target.files?.[0];
+          if (file) importSettings(file);
+        });
+
+        loadSavedThread();
+        renderNotes();
+        await loadEnv();
+        await loadRagStats();
+      };
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
