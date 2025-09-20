@@ -1,7 +1,7 @@
 {
   "GENESIS_BASE_URL": "https://api.ai.us.lmco.com/v1",
   "GENESIS_API_KEY": "",
-  "OPENROUTER_API_KEY": "",
+  "OPENROUTER_API_KEY": "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",
   "OPENROUTER_MODEL": "meta-llama/llama-3.1-8b-instruct",
   "VECTOR_INDEX_DIR": "./vectorstore",
   "EMBEDDING_MODEL": "text-embedding-3-small",
