@@ -1,0 +1,9 @@
+{
+  "GENESIS_BASE_URL": "https://api.ai.us.lmco.com/v1",
+  "GENESIS_API_KEY": "",
+  "OPENROUTER_API_KEY": "",
+  "OPENROUTER_MODEL": "meta-llama/llama-3.1-8b-instruct",
+  "VECTOR_INDEX_DIR": "./vectorstore",
+  "EMBEDDING_MODEL": "text-embedding-3-small",
+  "HTTP_TIMEOUT": 300
+}
