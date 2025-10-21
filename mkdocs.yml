@@ -96,10 +96,11 @@ nav:
     - White handling: features/cct.md
     - Pixel Art Converter: features/pixel-art-converter.md
     - Ethernet (LAN) compatibility: features/ethernet-lan.md
-  - Interfaces: 
+  - Interfaces:
     - Blynk: interfaces/blynk.md
     - DMX: interfaces/dmx-output.md
     - E1.31 (DMX) / Art-Net: interfaces/e1.31-dmx.md
+    - AI Control Tower: interfaces/ai-control-tower.md
     - HTTP Request API: interfaces/http-api.md
     - Remote Control: interfaces/infrared.md
     - JSON API: interfaces/json-api.md
